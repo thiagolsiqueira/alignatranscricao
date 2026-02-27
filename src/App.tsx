@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Layout, History, Plus, Settings, LogOut, Search, User, Bell } from 'lucide-react';
+import { Layout, History, Plus, Search, Menu } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { UploadSection } from './components/UploadSection';
 import { TranscriptionList } from './components/TranscriptionList';
@@ -15,6 +15,7 @@ export default function App() {
   const [selectedTranscription, setSelectedTranscription] = useState<Transcription | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   const handleUpload = async (file: File, language: string) => {
     setIsProcessing(true);
@@ -51,14 +52,26 @@ export default function App() {
   const handleSelectTranscription = (t: Transcription) => {
     setSelectedTranscription(t);
     setCurrentView('viewer');
+    setMobileSidebarOpen(false);
   };
 
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">
+      {mobileSidebarOpen && (
+        <button
+          type="button"
+          aria-label="Fechar menu"
+          onClick={() => setMobileSidebarOpen(false)}
+          className="fixed inset-0 z-40 bg-slate-900/40 md:hidden"
+        />
+      )}
+
       {/* Sidebar */}
       <aside className={cn(
-        "bg-white border-r border-slate-200 transition-all duration-300 flex flex-col",
-        sidebarOpen ? "w-80" : "w-20"
+        "bg-white border-r border-slate-200 transition-all duration-300 flex flex-col fixed inset-y-0 left-0 z-50 md:relative md:z-auto",
+        "w-80 max-w-[85vw] md:max-w-none",
+        mobileSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0",
+        sidebarOpen ? "md:w-80" : "md:w-20"
       )}>
         <div className="p-6 flex items-center gap-3">
           <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center shrink-0">
@@ -69,7 +82,10 @@ export default function App() {
 
         <div className="px-4 mb-6">
           <button 
-            onClick={() => setCurrentView('dashboard')}
+            onClick={() => {
+              setCurrentView('dashboard');
+              setMobileSidebarOpen(false);
+            }}
             className={cn(
               "w-full flex items-center gap-3 px-4 h-12 rounded-xl transition-all",
               currentView === 'dashboard' ? "bg-primary text-white shadow-lg shadow-primary/20" : "text-slate-600 hover:bg-slate-100"
@@ -105,24 +121,24 @@ export default function App() {
           </div>
         </div>
 
-        <div className="p-4 border-t border-slate-100 space-y-1">
-          <button className="w-full flex items-center gap-3 px-4 h-11 rounded-lg text-slate-600 hover:bg-slate-50 transition-all text-sm">
-            <Settings className="w-4 h-4" />
-            {sidebarOpen && <span>Configurações</span>}
-          </button>
-          <button className="w-full flex items-center gap-3 px-4 h-11 rounded-lg text-red-600 hover:bg-red-50 transition-all text-sm">
-            <LogOut className="w-4 h-4" />
-            {sidebarOpen && <span>Sair</span>}
-          </button>
-        </div>
+        <div className="p-4 border-t border-slate-100 space-y-1"></div>
       </aside>
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Header */}
-        <header className="h-16 bg-white border-b border-slate-200 px-8 flex items-center justify-between shrink-0">
+        <header className="h-16 bg-white border-b border-slate-200 px-4 md:px-8 flex items-center justify-between gap-3 shrink-0">
           <div className="flex items-center gap-4 flex-1">
-            <div className="relative max-w-md w-full">
+            <button
+              type="button"
+              onClick={() => setMobileSidebarOpen(true)}
+              className="p-2 rounded-lg text-slate-600 hover:bg-slate-100 md:hidden"
+              aria-label="Abrir menu"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+
+            <div className="relative max-w-md w-full hidden sm:block">
               <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
               <input 
                 type="text" 
@@ -132,21 +148,7 @@ export default function App() {
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
-            <button className="p-2 text-slate-500 hover:bg-slate-100 rounded-full transition-all relative">
-              <Bell className="w-5 h-5" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-primary rounded-full border-2 border-white"></span>
-            </button>
-            <div className="h-8 w-px bg-slate-200 mx-2"></div>
-            <div className="flex items-center gap-3 pl-2">
-              <div className="text-right hidden sm:block">
-                <p className="text-sm font-semibold text-slate-900 leading-none">Thiago Siqueira</p>
-              </div>
-              <div className="w-10 h-10 bg-slate-200 rounded-full flex items-center justify-center overflow-hidden border-2 border-white shadow-sm">
-                <User className="w-6 h-6 text-slate-400" />
-              </div>
-            </div>
-          </div>
+          <div className="flex items-center gap-2 md:gap-4"></div>
         </header>
 
         {/* View Content */}
