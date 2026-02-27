@@ -55,6 +55,11 @@ function huggingFaceProxy() {
 }
 
 export default defineConfig(() => {
+  const allowedHostsFromEnv = (process.env.VITE_ALLOWED_HOSTS || '')
+    .split(',')
+    .map((host) => host.trim())
+    .filter(Boolean);
+
   return {
     plugins: [huggingFaceProxy(), react(), tailwindcss()],
     resolve: {
@@ -72,6 +77,13 @@ export default defineConfig(() => {
       format: 'es',
     },
     server: {
+      host: '0.0.0.0',
+      allowedHosts: [
+        'localhost',
+        '127.0.0.1',
+        'alignatranscricao.maisproducao.com.br',
+        ...allowedHostsFromEnv,
+      ],
       hmr: process.env.DISABLE_HMR !== 'true',
       proxy: {
         '^/models/': {
