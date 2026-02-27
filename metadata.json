@@ -1,0 +1,5 @@
+{
+  "name": "AudioScribe AI",
+  "description": "Professional audio and video transcription powered by Gemini AI. Fast, accurate, and easy to use.",
+  "requestFramePermissions": ["microphone"]
+}
